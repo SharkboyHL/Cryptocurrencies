@@ -10,5 +10,9 @@ body{
   max-width: 1080px;
   margin: 0 auto;
   font-family: sans-serif;
-  color: white;
+  /* color: white; */
+}
+
+img{
+  width: 100px;
 }
