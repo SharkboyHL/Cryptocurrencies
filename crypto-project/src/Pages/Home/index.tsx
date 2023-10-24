@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"
-import { Link } from "react-router-dom";
+import { useEffect, useState, FormEvent } from "react"
+import { Link, useNavigate } from "react-router-dom";
 import styles from "./home.module.css"
 import { HiMiniMagnifyingGlass } from "react-icons/hi2";
 
@@ -12,11 +12,15 @@ interface CoinProps{
     symbol: string;
     volume_24h: string;
     market_cap: string;
+    formatedPrice: string;
+    formatedMarket: string;
 }
 
 export function Home (){
     
-    const [coins, setCoins] = useState()
+    const [coins, setCoins] = useState<CoinProps[]>([])
+    const [inputValue, setInputValue] = useState("")
+    const navigate = useNavigate()
 
     useEffect(()=>{
         async function getData() {
@@ -44,11 +48,20 @@ export function Home (){
         getData();
     },[])
     
+    function pesquisa(e: FormEvent){
+        e.preventDefault();
+        if(inputValue === "") return;
+
+        navigate(`/detail/${inputValue}`)
+    }
+
     return(
         <main className={styles.container}>
-            <form className={styles.form}>
+            <form className={styles.form} onSubmit={pesquisa}>
                 <input 
                 placeholder="Digite o simbolo da moeda: BTC.."
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
                 />
                 <button type="submit">
                 <HiMiniMagnifyingGlass size={30} color="#fff"/>
@@ -66,22 +79,24 @@ export function Home (){
                 </thead>
 
                 <tbody id="tbody">
-                    <tr className={styles.tr}>
+                    {coins.map(coin =>(
+                    <tr key={coin.name} className={styles.tr}>
                         <td className={styles.tdLabel} data-label="Moeda">
-                            <Link className={styles.link} to="/detail/btc">
-                                <span>Bitcoin</span> | BTC
+                            <Link className={styles.link} to={`/detail/${coin.symbol}`}>
+                                <span>{coin.name}</span> | {coin.symbol}
                             </Link>
                         </td>
-                        <td className={styles.tdLabel}>
-                            R$1412
+                        <td className={styles.tdLabel} data-label="Mercado">
+                            {coin.formatedMarket}
                         </td>
-                        <td className={styles.tdLabel}>
-                            R$22.0905
+                        <td className={styles.tdLabel} data-label="Preço">
+                            {coin.formatedPrice}
                         </td>
-                        <td className={styles.tdLoss}>
-                            <span>-5.3</span>
+                        <td className={Number(coin.delta_24h) >= 0? styles.tdProfit : styles.tdLoss} data-label="delta_24h">
+                            <span>{coin.delta_24h}</span>
                         </td>
                     </tr>
+                    ))}
                 </tbody>
             </table>
         </main>
