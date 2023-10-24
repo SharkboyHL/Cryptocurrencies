@@ -5,9 +5,18 @@ import { HiMiniMagnifyingGlass } from "react-icons/hi2";
 
 //https://sujeitoprogramador.com/api-cripto/?key=cd0ef22b569e04b8
 
+interface CoinProps{
+    name: string;
+    delta_24h: string;
+    price: string;
+    symbol: string;
+    volume_24h: string;
+    market_cap: string;
+}
+
 export function Home (){
     
-    const [coins, setCoints] = useState()
+    const [coins, setCoins] = useState()
 
     useEffect(()=>{
         async function getData() {
@@ -15,7 +24,21 @@ export function Home (){
             .then(response => response.json())
             .then((data)=>{
                 let coinsData = data.coins.slice(0, 15)
-                console.log(coinsData);
+                
+                let price = Intl.NumberFormat ("pt-BR",{
+                    
+                    style: "currency",
+                    currency: "BRL"
+                })
+                const FormatResult = coinsData.map((item)=>{
+                    const formated={
+                        ...item,
+                        formatedPrice:price.format(Number(item.price)),
+                        formatedMarket:price.format(Number(item.market_cap))
+                    }
+                    return formated;
+                })
+                setCoins(FormatResult);
             })
         }
         getData();
